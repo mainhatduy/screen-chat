@@ -13,6 +13,7 @@ namespace ScreenOCR
 
         public string ApiKey { get; set; } = string.Empty;
         public bool HasApiKey => !string.IsNullOrEmpty(ApiKey);
+        public bool EnableDoubleCheck { get; set; } = true; // Default to true for backward compatibility
 
         public AppSettings(ILogger logger)
         {
@@ -41,7 +42,7 @@ namespace ScreenOCR
         {
             try
             {
-                _logger.LogDebug($"Attempting to load API key from: {_settingsFilePath}");
+                _logger.LogDebug($"Attempting to load settings from: {_settingsFilePath}");
                 if (File.Exists(_settingsFilePath))
                 {
                     _logger.LogDebug("File exists, loading content");
@@ -51,16 +52,30 @@ namespace ScreenOCR
                     try
                     {
                         // Use a strongly-typed deserializer to avoid null reference issues
-                        var dataDict = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                        if (dataDict != null && dataDict.TryGetValue("ApiKey", out var apiKeyValue) && !string.IsNullOrEmpty(apiKeyValue))
+                        var dataDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+                        if (dataDict != null)
                         {
-                            ApiKey = apiKeyValue;
-                            _logger.LogInformation($"API key loaded successfully from {_settingsFilePath}");
-                            _logger.LogDebug($"HasApiKey is now: {HasApiKey}");
-                        }
-                        else
-                        {
-                            _logger.LogWarning("Failed to extract API key from JSON file - key not found or empty");
+                            // Load API Key
+                            if (dataDict.TryGetValue("ApiKey", out var apiKeyValue) && apiKeyValue != null && !string.IsNullOrEmpty(apiKeyValue.ToString()))
+                            {
+                                ApiKey = apiKeyValue.ToString() ?? string.Empty;
+                                _logger.LogInformation($"API key loaded successfully from {_settingsFilePath}");
+                                _logger.LogDebug($"HasApiKey is now: {HasApiKey}");
+                            }
+                            else
+                            {
+                                _logger.LogWarning("Failed to extract API key from JSON file - key not found or empty");
+                            }
+                            
+                            // Load EnableDoubleCheck setting
+                            if (dataDict.TryGetValue("EnableDoubleCheck", out var doubleCheckValue) && doubleCheckValue != null)
+                            {
+                                if (bool.TryParse(doubleCheckValue.ToString(), out bool enableDoubleCheck))
+                                {
+                                    EnableDoubleCheck = enableDoubleCheck;
+                                    _logger.LogInformation($"EnableDoubleCheck setting loaded successfully: {EnableDoubleCheck}");
+                                }
+                            }
                         }
                     }
                     catch
@@ -73,6 +88,7 @@ namespace ScreenOCR
                         {
                             try
                             {
+                                // Load API Key
                                 string? apiKey = data?.ApiKey?.ToString();
                                 if (!string.IsNullOrEmpty(apiKey))
                                 {
@@ -84,6 +100,21 @@ namespace ScreenOCR
                                 {
                                     _logger.LogWarning("API key property is null or empty in JSON");
                                 }
+                                
+                                // Load EnableDoubleCheck setting
+                                try
+                                {
+                                    bool? enableDoubleCheck = data?.EnableDoubleCheck;
+                                    if (enableDoubleCheck.HasValue)
+                                    {
+                                        EnableDoubleCheck = enableDoubleCheck.Value;
+                                        _logger.LogInformation($"EnableDoubleCheck setting loaded successfully: {EnableDoubleCheck}");
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogWarning(ex, "Error accessing EnableDoubleCheck property");
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -94,12 +125,12 @@ namespace ScreenOCR
                 }
                 else
                 {
-                    _logger.LogInformation($"API key file does not exist at {_settingsFilePath}, user will need to provide API key");
+                    _logger.LogInformation($"Settings file does not exist at {_settingsFilePath}, using default settings");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error loading API key from {_settingsFilePath}");
+                _logger.LogError(ex, $"Error loading settings from {_settingsFilePath}");
             }
         }
 
@@ -108,15 +139,15 @@ namespace ScreenOCR
             try
             {
                 // Create a simple object with just the properties we want to save
-                var dataToSave = new { ApiKey = this.ApiKey };
+                var dataToSave = new { ApiKey = this.ApiKey, EnableDoubleCheck = this.EnableDoubleCheck };
                 var json = JsonConvert.SerializeObject(dataToSave, Formatting.Indented);
                 File.WriteAllText(_settingsFilePath, json);
-                _logger.LogInformation($"API key saved successfully to {_settingsFilePath}");
+                _logger.LogInformation($"Settings saved successfully to {_settingsFilePath}");
                 _logger.LogDebug($"Saved content: {json}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error saving API key to {_settingsFilePath}");
+                _logger.LogError(ex, $"Error saving settings to {_settingsFilePath}");
             }
         }
     }

@@ -18,7 +18,7 @@ namespace ScreenOCR
         private readonly ILogger _logger;
         private readonly string _apiKey;
         private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent";
-        private const string DEFAULT_PROMPT = "Extract location information of img:";
+        private const string DEFAULT_PROMPT = "You are a powerful and precise OCR (Optical Character Recognition) tool capable of extracting all text from provided images or documents accurately, supporting all languages including Latin alphabets, ideographic scripts (Chinese, Japanese, Korean), special character-based languages, and handwritten text. \nYour task is to precisely, fully, and clearly extract all text from this image, ensuring no words or characters are omitted and retaining the original document formatting.";
 
         public GeminiApiClient(string apiKey, ILogger logger)
         {
@@ -43,10 +43,11 @@ namespace ScreenOCR
                 // Build request
                 var requestUrl = $"{API_URL}?key={_apiKey}";
 
-                // Create the content request body
+                // Build request với cấu trúc output như ví dụ
                 var requestBody = new JObject(
                     new JProperty("contents", new JArray(
                         new JObject(
+                            new JProperty("role", "user"),
                             new JProperty("parts", new JArray(
                                 new JObject(
                                     new JProperty("text", prompt)
@@ -62,12 +63,21 @@ namespace ScreenOCR
                     )),
                     new JProperty("generationConfig", new JObject(
                         new JProperty("temperature", 0.1),
-                        new JProperty("topP", 0.95),
                         new JProperty("topK", 40),
-                        new JProperty("maxOutputTokens", 2048),
-                        new JProperty("responseMimeType", "text/plain")
+                        new JProperty("topP", 0.95),
+                        new JProperty("maxOutputTokens", 8192),
+                        new JProperty("responseMimeType", "application/json"),
+                        new JProperty("responseSchema", new JObject(
+                            new JProperty("type", "object"),
+                            new JProperty("properties", new JObject(
+                                new JProperty("text", new JObject(
+                                    new JProperty("type", "string")
+                                ))
+                            ))
+                        ))
                     ))
                 );
+
 
                 _logger.LogDebug("Sending request to Gemini API");
 

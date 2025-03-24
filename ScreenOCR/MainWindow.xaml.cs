@@ -138,11 +138,42 @@ public partial class MainWindow : Window
             // Extract text using Gemini API
             var result = await _geminiClient.ExtractTextFromImageAsync(screenshot);
             
-            // Show results
+            // Show results based on the double check feature setting
             Dispatcher.Invoke(() => 
             {
-                var resultsWindow = new ResultsWindow(result, _logger);
-                resultsWindow.ShowDialog();
+                if (_settings.EnableDoubleCheck)
+                {
+                    // Show the results window for user review
+                    var resultsWindow = new ResultsWindow(result, _logger);
+                    resultsWindow.ShowDialog();
+                }
+                else
+                {
+                    try
+                    {
+                        // Parse the JSON result
+                        var ocrResult = System.Text.Json.JsonSerializer.Deserialize<ResultsWindow.OCRResult>(result);
+                        string extractedText = ocrResult?.text ?? string.Empty;
+                        
+                        // Copy text directly to clipboard
+                        Clipboard.SetText(extractedText);
+                        
+                        // Show notification
+                        ToastNotification.ShowNotification("Text copied to clipboard!", _logger);
+                        
+                        _logger.LogInformation("Text automatically copied to clipboard (Double Check disabled)");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error processing result with Double Check disabled");
+                        MessageBox.Show(
+                            $"Error processing result: {ex.Message}",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error
+                        );
+                    }
+                }
             });
         }
         catch (Exception ex)

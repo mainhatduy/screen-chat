@@ -5,72 +5,198 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ScreenOCR"
         mc:Ignorable="d"
-        Title="Settings" Height="250" Width="500" 
+        Title="Settings Dashboard" Height="450" Width="700" 
         WindowStartupLocation="CenterScreen" 
-        ResizeMode="NoResize">
-    <Grid Margin="20">
+        ResizeMode="CanResize">
+    <Window.Resources>
+        <Style x:Key="DashboardPanel" TargetType="Border">
+            <Setter Property="Background" Value="#F5F5F5"/>
+            <Setter Property="BorderBrush" Value="#DDDDDD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Margin" Value="10"/>
+            <Setter Property="Padding" Value="15"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect ShadowDepth="1" BlurRadius="5" Opacity="0.2"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Foreground" Value="#333333"/>
+        </Style>
+        
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#1976D2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="CancelButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
+            <Setter Property="Background" Value="#757575"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <TextBlock Grid.Row="0" 
-                   Text="Google Gemini API Settings" 
-                   FontSize="18" 
-                   FontWeight="Bold" 
-                   Margin="0,0,0,15"/>
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2196F3" Padding="20,15">
+            <TextBlock Text="ScreenOCR Settings Dashboard" 
+                       FontSize="22" 
+                       FontWeight="SemiBold" 
+                       Foreground="White"/>
+        </Border>
         
-        <TextBlock Grid.Row="1" 
-                   Text="API Key:" 
-                   VerticalAlignment="Center"/>
+        <!-- Dashboard Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <Grid Margin="15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- API Settings Panel -->
+                <Border Grid.Column="0" Style="{StaticResource DashboardPanel}">
+                    <StackPanel>
+                        <TextBlock Text="API Configuration" Style="{StaticResource SectionTitle}"/>
+                        
+                        <TextBlock Text="Google Gemini API Key:" 
+                                   Margin="0,10,0,5"
+                                   FontWeight="Medium"/>
+                        
+                        <Grid Margin="0,5,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <PasswordBox x:Name="ApiKeyPasswordBox" 
+                                         Height="30"
+                                         Padding="5,0"
+                                         VerticalContentAlignment="Center"
+                                         PasswordChanged="ApiKeyPasswordBox_PasswordChanged"/>
+                            <Button Grid.Column="1" 
+                                    Content="Show" 
+                                    Width="60" 
+                                    Height="30"
+                                    Margin="10,0,0,0"
+                                    Style="{StaticResource ActionButton}"
+                                    Click="ShowApiKey_Click"/>
+                        </Grid>
+                        
+                        <TextBlock Text="You can get your API key from the Google AI Studio website." 
+                                   TextWrapping="Wrap" 
+                                   Margin="0,5,0,0" 
+                                   Foreground="Gray"/>
+                        
+                        <Border BorderBrush="#DDDDDD" 
+                                BorderThickness="0,1,0,0" 
+                                Margin="0,20,0,15" 
+                                Opacity="0.5"/>
+                        
+                        <Button Content="Test API Connection" 
+                                HorizontalAlignment="Left"
+                                Style="{StaticResource ActionButton}"
+                                Click="TestApiConnection_Click"/>
+                    </StackPanel>
+                </Border>
+                
+                <!-- Application Settings Panel -->
+                <Border Grid.Column="1" Style="{StaticResource DashboardPanel}">
+                    <StackPanel>
+                        <TextBlock Text="Application Settings" Style="{StaticResource SectionTitle}"/>
+                        
+                        <CheckBox x:Name="StartWithWindowsCheckBox" 
+                                  Content="Start with Windows" 
+                                  Margin="0,10,0,5"
+                                  FontWeight="Medium"
+                                  Checked="StartWithWindowsCheckBox_CheckedChanged"
+                                  Unchecked="StartWithWindowsCheckBox_CheckedChanged"/>
+                        
+                        <TextBlock Text="Automatically launch ScreenOCR when your computer starts" 
+                                   Margin="20,0,0,15" 
+                                   TextWrapping="Wrap"
+                                   Foreground="Gray"/>
+                        
+                        <CheckBox x:Name="EnableDoubleCheckCheckBox" 
+                                  Content="Enable Double Check Feature" 
+                                  Margin="0,10,0,5"
+                                  FontWeight="Medium"
+                                  Checked="EnableDoubleCheckCheckBox_CheckedChanged"
+                                  Unchecked="EnableDoubleCheckCheckBox_CheckedChanged"/>
+                        
+                        <TextBlock Text="When enabled, you can review extracted text before copying. When disabled, text is automatically copied with a notification." 
+                                   Margin="20,0,0,15" 
+                                   TextWrapping="Wrap"
+                                   Foreground="Gray"/>
+                        
+                        <TextBlock Text="Hotkey Configuration:" 
+                                   Margin="0,10,0,5"
+                                   FontWeight="Medium"/>
+                        
+                        <Border Background="#EEEEEE" 
+                                BorderBrush="#DDDDDD" 
+                                BorderThickness="1" 
+                                CornerRadius="4" 
+                                Padding="10" 
+                                Margin="0,5,0,10">
+                            <StackPanel>
+                                <TextBlock Text="Capture Screen Text: Ctrl+Shift+T" 
+                                           Margin="0,5"/>
+                                <TextBlock Text="(Hotkeys cannot be changed in this version)" 
+                                           FontStyle="Italic" 
+                                           Foreground="Gray"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </ScrollViewer>
         
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <PasswordBox x:Name="ApiKeyPasswordBox" 
-                         Margin="0,5,10,0" 
-                         PasswordChanged="ApiKeyPasswordBox_PasswordChanged"/>
-            <Button Grid.Column="1" 
-                    Content="Show" 
-                    Width="60" 
-                    Margin="0,5,0,0"
-                    Click="ShowApiKey_Click"/>
-        </Grid>
-        
-        <TextBlock Grid.Row="3" 
-                   Text="Note: You can get your API key from the Google AI Studio website." 
-                   TextWrapping="Wrap" 
-                   Margin="0,5,0,0" 
-                   Foreground="Gray"/>
-        
-        <StackPanel Grid.Row="4" 
-                    VerticalAlignment="Center">
-            <CheckBox x:Name="StartWithWindowsCheckBox" 
-                      Content="Start with Windows" 
-                      Margin="0,10,0,0"
-                      Checked="StartWithWindowsCheckBox_CheckedChanged"
-                      Unchecked="StartWithWindowsCheckBox_CheckedChanged"/>
-            <TextBlock Text="Hotkey: Ctrl+Shift+T (Cannot be changed)" 
-                       Margin="0,10,0,0" 
-                       Foreground="Gray"/>
-        </StackPanel>
-        
-        <StackPanel Grid.Row="5" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Right">
-            <Button Content="Cancel" 
-                    Width="80" 
-                    Margin="0,0,10,0"
-                    Click="CancelButton_Click"/>
-            <Button Content="Save" 
-                    Width="80" 
-                    Click="SaveButton_Click"/>
-        </StackPanel>
+        <!-- Footer with Action Buttons -->
+        <Border Grid.Row="2" 
+                Background="#F5F5F5" 
+                BorderBrush="#DDDDDD" 
+                BorderThickness="0,1,0,0" 
+                Padding="20,10">
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Right">
+                <Button Content="Cancel" 
+                        Width="100" 
+                        Style="{StaticResource CancelButton}"
+                        Click="CancelButton_Click"/>
+                <Button Content="Save Changes" 
+                        Width="150" 
+                        Style="{StaticResource ActionButton}"
+                        Click="SaveButton_Click"/>
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>
