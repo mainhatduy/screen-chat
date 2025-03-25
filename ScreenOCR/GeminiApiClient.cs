@@ -18,7 +18,7 @@ namespace ScreenOCR
         private readonly ILogger _logger;
         private readonly string _apiKey;
         private const string API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent";
-        private const string DEFAULT_PROMPT = "You are a powerful and precise OCR (Optical Character Recognition) tool capable of extracting all text from provided images or documents accurately, supporting all languages including Latin alphabets, ideographic scripts (Chinese, Japanese, Korean), special character-based languages, and handwritten text. \nYour task is to precisely, fully, and clearly extract all text from this image, ensuring no words or characters are omitted and retaining the original document formatting.";
+        public const string DEFAULT_PROMPT = "You are a powerful and precise OCR (Optical Character Recognition) tool capable of extracting all text from provided images or documents accurately, supporting all languages including Latin alphabets, ideographic scripts (Chinese, Japanese, Korean), special character-based languages, and handwritten text. \nYour task is to precisely, fully, and clearly extract all text from this image, ensuring no words or characters are omitted and retaining the original document formatting.";
 
         public GeminiApiClient(string apiKey, ILogger logger)
         {

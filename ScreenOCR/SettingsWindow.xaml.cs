@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace ScreenOCR
 {
@@ -16,6 +17,7 @@ namespace ScreenOCR
         private readonly AppSettings _settings;
         private GeminiApiClient? _apiClient;
         private bool _isApiKeyModified = false;
+        private bool _isPromptsModified = false;
         private const string APP_NAME = "ScreenOCR";
         private const string RUN_REGISTRY_KEY = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
         
@@ -68,6 +70,9 @@ namespace ScreenOCR
                 {
                     enableDoubleCheckCheckBox.IsChecked = _settings.EnableDoubleCheck;
                 }
+                
+                // Load custom prompts
+                LoadCustomPrompts();
                 
                 _logger.LogDebug("Settings loaded successfully");
             }
@@ -127,6 +132,18 @@ namespace ScreenOCR
                     _settings.EnableDoubleCheck = enableDoubleCheckCheckBox.IsChecked == true;
                     _settings.SaveSettings();
                     _logger.LogInformation($"Double check feature setting updated: {_settings.EnableDoubleCheck}");
+                }
+
+                // Save selected prompt if modified
+                if (_isPromptsModified)
+                {
+                    var promptsComboBox = FindName("PromptsComboBox") as ComboBox;
+                    if (promptsComboBox != null && promptsComboBox.SelectedItem is CustomPrompt selectedPrompt)
+                    {
+                        _settings.SelectedPromptName = selectedPrompt.Name;
+                        _settings.SaveSettings();
+                        _logger.LogInformation($"Selected prompt updated: {selectedPrompt.Name}");
+                    }
                 }
 
                 // Handle startup with Windows setting
@@ -262,5 +279,220 @@ namespace ScreenOCR
                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+        
+        #region Custom Prompts Management
+        
+        private void LoadCustomPrompts()
+        {
+            try
+            {
+                var promptsComboBox = FindName("PromptsComboBox") as ComboBox;
+                if (promptsComboBox != null)
+                {
+                    promptsComboBox.Items.Clear();
+                    
+                    // Add default prompt
+                    var defaultPrompt = new CustomPrompt { Name = "Default", Text = GeminiApiClient.DEFAULT_PROMPT };
+                    promptsComboBox.Items.Add(defaultPrompt);
+                    
+                    // Add custom prompts
+                    foreach (var prompt in _settings.CustomPrompts)
+                    {
+                        promptsComboBox.Items.Add(prompt);
+                    }
+                    
+                    // Select the current prompt
+                    if (!string.IsNullOrEmpty(_settings.SelectedPromptName))
+                    {
+                        var selectedPrompt = _settings.CustomPrompts.FirstOrDefault(p => p.Name == _settings.SelectedPromptName);
+                        if (selectedPrompt != null)
+                        {
+                            promptsComboBox.SelectedItem = selectedPrompt;
+                        }
+                        else
+                        {
+                            promptsComboBox.SelectedIndex = 0; // Select default
+                        }
+                    }
+                    else
+                    {
+                        promptsComboBox.SelectedIndex = 0; // Select default
+                    }
+                    
+                    _isPromptsModified = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading custom prompts");
+                MessageBox.Show($"Error loading custom prompts: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        private void PromptsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.SelectedItem is CustomPrompt)
+            {
+                _isPromptsModified = true;
+            }
+        }
+        
+        private void AddPrompt_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var dialog = new PromptDialog();
+                dialog.Owner = this;
+                
+                if (dialog.ShowDialog() == true)
+                {
+                    // Check if a prompt with this name already exists
+                    if (_settings.CustomPrompts.Any(p => p.Name == dialog.PromptName))
+                    {
+                        MessageBox.Show($"A prompt with the name '{dialog.PromptName}' already exists. Please choose a different name.", 
+                            "Duplicate Name", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                    
+                    // Add the new prompt
+                    var newPrompt = new CustomPrompt { Name = dialog.PromptName, Text = dialog.PromptText };
+                    _settings.CustomPrompts.Add(newPrompt);
+                    _settings.SaveSettings();
+                    
+                    // Reload prompts and select the new one
+                    LoadCustomPrompts();
+                    var promptsComboBox = FindName("PromptsComboBox") as ComboBox;
+                    if (promptsComboBox != null)
+                    {
+                        var addedPrompt = _settings.CustomPrompts.FirstOrDefault(p => p.Name == dialog.PromptName);
+                        if (addedPrompt != null)
+                        {
+                            promptsComboBox.SelectedItem = addedPrompt;
+                            _isPromptsModified = true;
+                        }
+                    }
+                    
+                    _logger.LogInformation($"Added new prompt: {dialog.PromptName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding custom prompt");
+                MessageBox.Show($"Error adding custom prompt: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        private void EditPrompt_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var promptsComboBox = FindName("PromptsComboBox") as ComboBox;
+                if (promptsComboBox != null && promptsComboBox.SelectedItem is CustomPrompt selectedPrompt)
+                {
+                    // Don't allow editing the default prompt
+                    if (selectedPrompt.Name == "Default")
+                    {
+                        MessageBox.Show("The default prompt cannot be edited.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+                    
+                    var dialog = new PromptDialog(selectedPrompt.Name, selectedPrompt.Text);
+                    dialog.Owner = this;
+                    
+                    if (dialog.ShowDialog() == true)
+                    {
+                        // Check if the name was changed and if it conflicts with an existing prompt
+                        if (dialog.PromptName != selectedPrompt.Name && 
+                            _settings.CustomPrompts.Any(p => p.Name == dialog.PromptName))
+                        {
+                            MessageBox.Show($"A prompt with the name '{dialog.PromptName}' already exists. Please choose a different name.", 
+                                "Duplicate Name", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+                        
+                        // Update the prompt
+                        var promptToUpdate = _settings.CustomPrompts.FirstOrDefault(p => p.Name == selectedPrompt.Name);
+                        if (promptToUpdate != null)
+                        {
+                            // If the name was changed, update the selected prompt name in settings
+                            if (_settings.SelectedPromptName == promptToUpdate.Name)
+                            {
+                                _settings.SelectedPromptName = dialog.PromptName;
+                            }
+                            
+                            promptToUpdate.Name = dialog.PromptName;
+                            promptToUpdate.Text = dialog.PromptText;
+                            _settings.SaveSettings();
+                            
+                            // Reload prompts and select the updated one
+                            LoadCustomPrompts();
+                            var updatedPrompt = _settings.CustomPrompts.FirstOrDefault(p => p.Name == dialog.PromptName);
+                            if (updatedPrompt != null)
+                            {
+                                promptsComboBox.SelectedItem = updatedPrompt;
+                                _isPromptsModified = true;
+                            }
+                            
+                            _logger.LogInformation($"Updated prompt: {dialog.PromptName}");
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please select a prompt to edit.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error editing custom prompt");
+                MessageBox.Show($"Error editing custom prompt: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        private void DeletePrompt_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var promptsComboBox = FindName("PromptsComboBox") as ComboBox;
+                if (promptsComboBox != null && promptsComboBox.SelectedItem is CustomPrompt selectedPrompt)
+                {
+                    // Don't allow deleting the default prompt
+                    if (selectedPrompt.Name == "Default")
+                    {
+                        MessageBox.Show("The default prompt cannot be deleted.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                        return;
+                    }
+                    
+                    var result = MessageBox.Show($"Are you sure you want to delete the prompt '{selectedPrompt.Name}'?", 
+                        "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        // Delete the prompt
+                        if (_settings.DeletePrompt(selectedPrompt.Name))
+                        {
+                            _settings.SaveSettings();
+                            
+                            // Reload prompts
+                            LoadCustomPrompts();
+                            _isPromptsModified = true;
+                            
+                            _logger.LogInformation($"Deleted prompt: {selectedPrompt.Name}");
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Please select a prompt to delete.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting custom prompt");
+                MessageBox.Show($"Error deleting custom prompt: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+        
+        #endregion
     }
 }

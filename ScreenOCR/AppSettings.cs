@@ -6,6 +6,12 @@ using Newtonsoft.Json;
 
 namespace ScreenOCR
 {
+    public class CustomPrompt
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
+    }
+
     public class AppSettings
     {
         private readonly ILogger _logger;
@@ -14,6 +20,9 @@ namespace ScreenOCR
         public string ApiKey { get; set; } = string.Empty;
         public bool HasApiKey => !string.IsNullOrEmpty(ApiKey);
         public bool EnableDoubleCheck { get; set; } = true; // Default to true for backward compatibility
+        public List<CustomPrompt> CustomPrompts { get; set; } = new List<CustomPrompt>();
+        public string SelectedPromptName { get; set; } = string.Empty;
+        public string CustomPrompt => GetSelectedPromptText();
 
         public AppSettings(ILogger logger)
         {
@@ -76,6 +85,35 @@ namespace ScreenOCR
                                     _logger.LogInformation($"EnableDoubleCheck setting loaded successfully: {EnableDoubleCheck}");
                                 }
                             }
+                            
+                            // Load Custom Prompts
+                            if (dataDict.TryGetValue("CustomPrompts", out var promptsValue) && promptsValue != null)
+                            {
+                                try
+                                {
+                                    var promptsJson = promptsValue.ToString();
+                                    if (!string.IsNullOrEmpty(promptsJson))
+                                    {
+                                        var prompts = JsonConvert.DeserializeObject<List<CustomPrompt>>(promptsJson);
+                                        if (prompts != null && prompts.Count > 0)
+                                        {
+                                            CustomPrompts = prompts;
+                                            _logger.LogInformation($"Loaded {CustomPrompts.Count} custom prompts");
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogWarning(ex, "Error deserializing custom prompts");
+                                }
+                            }
+                            
+                            // Load Selected Prompt Name
+                            if (dataDict.TryGetValue("SelectedPromptName", out var selectedPromptValue) && selectedPromptValue != null)
+                            {
+                                SelectedPromptName = selectedPromptValue.ToString() ?? string.Empty;
+                                _logger.LogInformation($"Selected prompt name loaded: {SelectedPromptName}");
+                            }
                         }
                     }
                     catch
@@ -115,6 +153,36 @@ namespace ScreenOCR
                                 {
                                     _logger.LogWarning(ex, "Error accessing EnableDoubleCheck property");
                                 }
+                                
+                                // Load Custom Prompts
+                                try
+                                {
+                                    var customPrompts = data?.CustomPrompts;
+                                    if (customPrompts != null)
+                                    {
+                                        CustomPrompts = JsonConvert.DeserializeObject<List<CustomPrompt>>(customPrompts.ToString());
+                                        _logger.LogInformation($"Loaded {CustomPrompts.Count} custom prompts using dynamic approach");
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogWarning(ex, "Error accessing CustomPrompts property");
+                                }
+                                
+                                // Load Selected Prompt Name
+                                try
+                                {
+                                    string? selectedPromptName = data?.SelectedPromptName?.ToString();
+                                    if (!string.IsNullOrEmpty(selectedPromptName))
+                                    {
+                                        SelectedPromptName = selectedPromptName;
+                                        _logger.LogInformation($"Selected prompt name loaded using dynamic approach: {SelectedPromptName}");
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogWarning(ex, "Error accessing SelectedPromptName property");
+                                }
                             }
                             catch (Exception ex)
                             {
@@ -139,7 +207,12 @@ namespace ScreenOCR
             try
             {
                 // Create a simple object with just the properties we want to save
-                var dataToSave = new { ApiKey = this.ApiKey, EnableDoubleCheck = this.EnableDoubleCheck };
+                var dataToSave = new { 
+                    ApiKey = this.ApiKey, 
+                    EnableDoubleCheck = this.EnableDoubleCheck,
+                    CustomPrompts = this.CustomPrompts,
+                    SelectedPromptName = this.SelectedPromptName
+                };
                 var json = JsonConvert.SerializeObject(dataToSave, Formatting.Indented);
                 File.WriteAllText(_settingsFilePath, json);
                 _logger.LogInformation($"Settings saved successfully to {_settingsFilePath}");
@@ -149,6 +222,51 @@ namespace ScreenOCR
             {
                 _logger.LogError(ex, $"Error saving settings to {_settingsFilePath}");
             }
+        }
+        
+        public string GetSelectedPromptText()
+        {
+            if (string.IsNullOrEmpty(SelectedPromptName) || CustomPrompts.Count == 0)
+            {
+                return GeminiApiClient.DEFAULT_PROMPT;
+            }
+            
+            var selectedPrompt = CustomPrompts.Find(p => p.Name == SelectedPromptName);
+            return selectedPrompt?.Text ?? GeminiApiClient.DEFAULT_PROMPT;
+        }
+        
+        public void AddOrUpdatePrompt(string name, string text)
+        {
+            var existingPrompt = CustomPrompts.Find(p => p.Name == name);
+            if (existingPrompt != null)
+            {
+                existingPrompt.Text = text;
+                _logger.LogInformation($"Updated prompt: {name}");
+            }
+            else
+            {
+                CustomPrompts.Add(new CustomPrompt { Name = name, Text = text });
+                _logger.LogInformation($"Added new prompt: {name}");
+            }
+        }
+        
+        public bool DeletePrompt(string name)
+        {
+            var prompt = CustomPrompts.Find(p => p.Name == name);
+            if (prompt != null)
+            {
+                CustomPrompts.Remove(prompt);
+                
+                // If we deleted the selected prompt, reset the selection
+                if (SelectedPromptName == name)
+                {
+                    SelectedPromptName = CustomPrompts.Count > 0 ? CustomPrompts[0].Name : string.Empty;
+                }
+                
+                _logger.LogInformation($"Deleted prompt: {name}");
+                return true;
+            }
+            return false;
         }
     }
 }

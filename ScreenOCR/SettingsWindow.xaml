@@ -157,6 +157,51 @@
                                    TextWrapping="Wrap"
                                    Foreground="Gray"/>
                         
+                        <!-- Custom Prompts Section -->
+                        <TextBlock Text="Custom Prompts:" 
+                                   Margin="0,10,0,5"
+                                   FontWeight="Medium"/>
+                        
+                        <TextBlock Text="Select or create custom prompts for the OCR model" 
+                                   Margin="0,0,0,10" 
+                                   TextWrapping="Wrap"
+                                   Foreground="Gray"/>
+                        
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <ComboBox x:Name="PromptsComboBox" 
+                                      Grid.Column="0"
+                                      Margin="0,0,5,0"
+                                      DisplayMemberPath="Name"
+                                      SelectionChanged="PromptsComboBox_SelectionChanged"/>
+                            
+                            <Button Grid.Column="1" 
+                                    Content="Add" 
+                                    Width="60" 
+                                    Margin="0,0,5,0"
+                                    Style="{StaticResource ActionButton}"
+                                    Click="AddPrompt_Click"/>
+                            
+                            <Button Grid.Column="2" 
+                                    Content="Edit" 
+                                    Width="60" 
+                                    Margin="0,0,5,0"
+                                    Style="{StaticResource ActionButton}"
+                                    Click="EditPrompt_Click"/>
+                            
+                            <Button Grid.Column="3" 
+                                    Content="Delete" 
+                                    Width="60" 
+                                    Style="{StaticResource CancelButton}"
+                                    Click="DeletePrompt_Click"/>
+                        </Grid>
+                        
                         <TextBlock Text="Hotkey Configuration:" 
                                    Margin="0,10,0,5"
                                    FontWeight="Medium"/>

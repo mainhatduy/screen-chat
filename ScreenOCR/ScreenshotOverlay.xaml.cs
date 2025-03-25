@@ -28,6 +28,7 @@ namespace ScreenOCR
         private bool _isSelecting;
         private readonly ILogger _logger;
         private readonly Action<Bitmap> _onScreenshotCaptured;
+        private readonly string _customPrompt;
 
         // Selection state variables
         private bool _isShiftDown;
@@ -67,10 +68,11 @@ namespace ScreenOCR
             public int Bottom;
         }
 
-        public ScreenshotOverlay(ILogger logger, Action<Bitmap> onScreenshotCaptured)
+        public ScreenshotOverlay(ILogger logger, Action<Bitmap> onScreenshotCaptured, string customPrompt = "")
         {
             _logger = logger;
             _onScreenshotCaptured = onScreenshotCaptured;
+            _customPrompt = customPrompt;
 
             // Initialize UI elements directly in the constructor
             _mainCanvas = new System.Windows.Controls.Canvas();

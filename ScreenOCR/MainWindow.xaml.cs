@@ -109,8 +109,8 @@ public partial class MainWindow : Window
                 _geminiClient = new GeminiApiClient(_settings.ApiKey, _logger);
             }
 
-            // Show the screenshot capture overlay
-            var overlay = new ScreenshotOverlay(_logger, ProcessScreenshot);
+            // Show the screenshot capture overlay with the custom prompt from settings
+            var overlay = new ScreenshotOverlay(_logger, ProcessScreenshot, _settings.CustomPrompt);
             overlay.ShowDialog();
         }
         catch (Exception ex)
@@ -135,8 +135,11 @@ public partial class MainWindow : Window
                 return;
             }
             
-            // Extract text using Gemini API
-            var result = await _geminiClient.ExtractTextFromImageAsync(screenshot);
+            // Get the selected prompt text from settings
+            string promptText = _settings.GetSelectedPromptText();
+            
+            // Extract text using Gemini API with the selected prompt
+            var result = await _geminiClient.ExtractTextFromImageAsync(screenshot, promptText);
             
             // Show results based on the double check feature setting
             Dispatcher.Invoke(() => 
