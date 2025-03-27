@@ -5,44 +5,82 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ScreenOCR"
         mc:Ignorable="d"
-        Title="Settings Dashboard" Height="450" Width="700" 
+        Title="Settings" Height="600" Width="800" 
         WindowStartupLocation="CenterScreen" 
-        ResizeMode="CanResize">
+        ResizeMode="CanResize"
+        Background="#121212"
+        FontFamily="Segoe UI">
     <Window.Resources>
-        <Style x:Key="DashboardPanel" TargetType="Border">
-            <Setter Property="Background" Value="#F5F5F5"/>
-            <Setter Property="BorderBrush" Value="#DDDDDD"/>
+        <!-- Thẻ ModuleCard: Giao diện thẻ chứa nội dung, với nền tối, viền nhẹ và hiệu ứng đổ bóng tinh tế -->
+        <Style x:Key="ModuleCard" TargetType="Border">
+            <Setter Property="Background" Value="#1F1F1F"/>
+            <Setter Property="BorderBrush" Value="#2D2D2D"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="Padding" Value="15"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Padding" Value="16"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect ShadowDepth="1" BlurRadius="5" Opacity="0.2"/>
+                    <DropShadowEffect ShadowDepth="1" BlurRadius="2" Opacity="0.1"/>
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
+        <!-- Tiêu đề mỗi phần -->
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Margin" Value="0,0,0,15"/>
-            <Setter Property="Foreground" Value="#333333"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
         </Style>
-        
+
+        <!-- Tiêu đề module con -->
+        <Style x:Key="ModuleTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Mô tả module -->
+        <Style x:Key="ModuleDescription" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#BBBBBB"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="LineHeight" Value="18"/>
+        </Style>
+
+        <!-- Hiển thị phím tắt -->
+        <Style x:Key="KeyboardShortcut" TargetType="Border">
+            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="BorderBrush" Value="#383838"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+        </Style>
+
+        <!-- Nội dung phím tắt -->
+        <Style x:Key="ShortcutText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+        </Style>
+
+        <!-- Nút hành động -->
         <Style x:Key="ActionButton" TargetType="Button">
-            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Padding" Value="12,6"/>
             <Setter Property="Background" Value="#2196F3"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4">
+                                CornerRadius="6">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -54,119 +92,188 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
+        <!-- Nút hủy -->
         <Style x:Key="CancelButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
-            <Setter Property="Background" Value="#757575"/>
+            <Setter Property="Background" Value="#424242"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#616161"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Công tắc bật/tắt -->
+        <Style x:Key="ToggleSwitch" TargetType="CheckBox">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid Width="40" Height="20">
+                            <Border x:Name="SwitchBackground" Background="#2D2D2D" CornerRadius="10">
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="0" BlurRadius="1" Opacity="0.1"/>
+                                </Border.Effect>
+                            </Border>
+                            <Border x:Name="SwitchThumb" Background="#FFFFFF" Width="16" Height="16" CornerRadius="8" 
+                                    HorizontalAlignment="Left" Margin="2,2,0,2"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="SwitchBackground" Property="Background" Value="#2196F3"/>
+                                <Setter TargetName="SwitchThumb" Property="HorizontalAlignment" Value="Right"/>
+                                <Setter TargetName="SwitchThumb" Property="Margin" Value="0,2,2,2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
-        <!-- Header -->
-        <Border Grid.Row="0" Background="#2196F3" Padding="20,15">
-            <TextBlock Text="ScreenOCR Settings Dashboard" 
-                       FontSize="22" 
+
+        <!-- Phần Header -->
+        <Border Grid.Row="0" Background="#1A1A1A" Padding="24,16">
+            <TextBlock Text="Settings" 
+                       FontSize="20" 
                        FontWeight="SemiBold" 
                        Foreground="White"/>
         </Border>
-        
-        <!-- Dashboard Content -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <Grid Margin="15">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- API Settings Panel -->
-                <Border Grid.Column="0" Style="{StaticResource DashboardPanel}">
+
+        <!-- Nội dung Settings -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Background="#121212">
+            <StackPanel Margin="24">
+
+                <!-- Panel cấu hình API -->
+                <Border Style="{StaticResource ModuleCard}">
                     <StackPanel>
                         <TextBlock Text="API Configuration" Style="{StaticResource SectionTitle}"/>
-                        
+
                         <TextBlock Text="Google Gemini API Key:" 
-                                   Margin="0,10,0,5"
-                                   FontWeight="Medium"/>
-                        
-                        <Grid Margin="0,5,0,10">
+                                   Margin="0,0,0,8"
+                                   FontWeight="Medium"
+                                   Foreground="#EEEEEE"/>
+
+                        <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <PasswordBox x:Name="ApiKeyPasswordBox" 
-                                         Height="30"
-                                         Padding="5,0"
+                                         Height="36"
+                                         Padding="12,0"
+                                         Background="#252525"
+                                         Foreground="White"
+                                         BorderBrush="#333333"
+                                         BorderThickness="1"
                                          VerticalContentAlignment="Center"
                                          PasswordChanged="ApiKeyPasswordBox_PasswordChanged"/>
                             <Button Grid.Column="1" 
                                     Content="Show" 
-                                    Width="60" 
-                                    Height="30"
-                                    Margin="10,0,0,0"
+                                    Width="70" 
+                                    Height="36"
+                                    Margin="8,0,0,0"
                                     Style="{StaticResource ActionButton}"
                                     Click="ShowApiKey_Click"/>
                         </Grid>
-                        
+
                         <TextBlock Text="You can get your API key from the Google AI Studio website." 
                                    TextWrapping="Wrap" 
-                                   Margin="0,5,0,0" 
-                                   Foreground="Gray"/>
-                        
-                        <Border BorderBrush="#DDDDDD" 
+                                   Style="{StaticResource ModuleDescription}"/>
+
+                        <Border BorderBrush="#333333" 
                                 BorderThickness="0,1,0,0" 
-                                Margin="0,20,0,15" 
-                                Opacity="0.5"/>
-                        
+                                Margin="0,20,0,20" 
+                                Opacity="0.3"/>
+
                         <Button Content="Test API Connection" 
                                 HorizontalAlignment="Left"
                                 Style="{StaticResource ActionButton}"
                                 Click="TestApiConnection_Click"/>
                     </StackPanel>
                 </Border>
-                
-                <!-- Application Settings Panel -->
-                <Border Grid.Column="1" Style="{StaticResource DashboardPanel}">
+
+                <!-- Panel cấu hình ứng dụng -->
+                <Border Style="{StaticResource ModuleCard}">
                     <StackPanel>
                         <TextBlock Text="Application Settings" Style="{StaticResource SectionTitle}"/>
-                        
-                        <CheckBox x:Name="StartWithWindowsCheckBox" 
-                                  Content="Start with Windows" 
-                                  Margin="0,10,0,5"
-                                  FontWeight="Medium"
-                                  Checked="StartWithWindowsCheckBox_CheckedChanged"
-                                  Unchecked="StartWithWindowsCheckBox_CheckedChanged"/>
-                        
-                        <TextBlock Text="Automatically launch ScreenOCR when your computer starts" 
-                                   Margin="20,0,0,15" 
-                                   TextWrapping="Wrap"
-                                   Foreground="Gray"/>
-                        
-                        <CheckBox x:Name="EnableDoubleCheckCheckBox" 
-                                  Content="Enable Double Check Feature" 
-                                  Margin="0,10,0,5"
-                                  FontWeight="Medium"
-                                  Checked="EnableDoubleCheckCheckBox_CheckedChanged"
-                                  Unchecked="EnableDoubleCheckCheckBox_CheckedChanged"/>
-                        
-                        <TextBlock Text="When enabled, you can review extracted text before copying. When disabled, text is automatically copied with a notification." 
-                                   Margin="20,0,0,15" 
-                                   TextWrapping="Wrap"
-                                   Foreground="Gray"/>
-                        
-                        <!-- Custom Prompts Section -->
+
+                        <Grid Margin="0,10,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Start with Windows" 
+                                           FontWeight="Medium"
+                                           Foreground="#EEEEEE"/>
+                                <TextBlock Text="Automatically launch ScreenOCR when your computer starts" 
+                                           Style="{StaticResource ModuleDescription}"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="1" 
+                                      x:Name="StartWithWindowsCheckBox" 
+                                      Style="{StaticResource ToggleSwitch}"
+                                      VerticalAlignment="Top"
+                                      Margin="0,4,0,0"
+                                      Checked="StartWithWindowsCheckBox_CheckedChanged"
+                                      Unchecked="StartWithWindowsCheckBox_CheckedChanged"/>
+                        </Grid>
+
+                        <Border BorderBrush="#333333" 
+                                BorderThickness="0,1,0,0" 
+                                Margin="0,16,0,16" 
+                                Opacity="0.3"/>
+
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Enable Double Check Feature" 
+                                           FontWeight="Medium"
+                                           Foreground="#EEEEEE"/>
+                                <TextBlock Text="Review extracted text before copying. If disabled, text is copied automatically with a notification." 
+                                           Style="{StaticResource ModuleDescription}"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="1" 
+                                      x:Name="EnableDoubleCheckCheckBox" 
+                                      Style="{StaticResource ToggleSwitch}"
+                                      VerticalAlignment="Top"
+                                      Margin="0,4,0,0"
+                                      Checked="EnableDoubleCheckCheckBox_CheckedChanged"
+                                      Unchecked="EnableDoubleCheckCheckBox_CheckedChanged"/>
+                        </Grid>
+
+                        <Border BorderBrush="#333333" 
+                                BorderThickness="0,1,0,0" 
+                                Margin="0,16,0,16" 
+                                Opacity="0.3"/>
+
+                        <!-- Phần Custom Prompts -->
                         <TextBlock Text="Custom Prompts:" 
-                                   Margin="0,10,0,5"
-                                   FontWeight="Medium"/>
-                        
+                                   Margin="0,0,0,8"
+                                   FontWeight="Medium"
+                                   Foreground="#EEEEEE"/>
                         <TextBlock Text="Select or create custom prompts for the OCR model" 
-                                   Margin="0,0,0,10" 
-                                   TextWrapping="Wrap"
-                                   Foreground="Gray"/>
-                        
+                                   Style="{StaticResource ModuleDescription}"
+                                   Margin="0,0,0,16"/>
+
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -174,61 +281,83 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            
                             <ComboBox x:Name="PromptsComboBox" 
                                       Grid.Column="0"
                                       Margin="0,0,5,0"
+                                      Style="{StaticResource EnhancedComboBox}"
                                       DisplayMemberPath="Name"
-                                      SelectionChanged="PromptsComboBox_SelectionChanged"/>
-                            
+                                      SelectionChanged="PromptsComboBox_SelectionChanged">
+                                <ComboBox.ItemContainerStyle>
+                                    <Style TargetType="ComboBoxItem" BasedOn="{StaticResource EnhancedComboBoxItem}"/>
+                                </ComboBox.ItemContainerStyle>
+                            </ComboBox>
                             <Button Grid.Column="1" 
                                     Content="Add" 
                                     Width="60" 
                                     Margin="0,0,5,0"
                                     Style="{StaticResource ActionButton}"
                                     Click="AddPrompt_Click"/>
-                            
                             <Button Grid.Column="2" 
                                     Content="Edit" 
                                     Width="60" 
                                     Margin="0,0,5,0"
                                     Style="{StaticResource ActionButton}"
                                     Click="EditPrompt_Click"/>
-                            
                             <Button Grid.Column="3" 
                                     Content="Delete" 
                                     Width="60" 
                                     Style="{StaticResource CancelButton}"
                                     Click="DeletePrompt_Click"/>
                         </Grid>
-                        
-                        <TextBlock Text="Hotkey Configuration:" 
-                                   Margin="0,10,0,5"
-                                   FontWeight="Medium"/>
-                        
-                        <Border Background="#EEEEEE" 
-                                BorderBrush="#DDDDDD" 
+                    </StackPanel>
+                </Border>
+
+                <!-- Panel cấu hình Hotkey -->
+                <Border Style="{StaticResource ModuleCard}">
+                    <StackPanel>
+                        <TextBlock Text="Hotkey Configuration" Style="{StaticResource SectionTitle}"/>
+                        <Border Background="#2D2D2D" 
+                                BorderBrush="#383838" 
                                 BorderThickness="1" 
                                 CornerRadius="4" 
-                                Padding="10" 
+                                Padding="12" 
                                 Margin="0,5,0,10">
                             <StackPanel>
-                                <TextBlock Text="Capture Screen Text: Ctrl+Shift+T" 
-                                           Margin="0,5"/>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Capture Screen Text:" 
+                                               Foreground="White"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <Border Style="{StaticResource KeyboardShortcut}">
+                                            <TextBlock Text="Ctrl" Style="{StaticResource ShortcutText}"/>
+                                        </Border>
+                                        <Border Style="{StaticResource KeyboardShortcut}">
+                                            <TextBlock Text="Shift" Style="{StaticResource ShortcutText}"/>
+                                        </Border>
+                                        <Border Style="{StaticResource KeyboardShortcut}">
+                                            <TextBlock Text="T" Style="{StaticResource ShortcutText}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
                                 <TextBlock Text="(Hotkeys cannot be changed in this version)" 
                                            FontStyle="Italic" 
-                                           Foreground="Gray"/>
+                                           Foreground="#E0E0E0"
+                                           Margin="0,5,0,0"/>
                             </StackPanel>
                         </Border>
                     </StackPanel>
                 </Border>
-            </Grid>
+            </StackPanel>
         </ScrollViewer>
-        
-        <!-- Footer with Action Buttons -->
+
+        <!-- Footer với các nút hành động -->
         <Border Grid.Row="2" 
-                Background="#F5F5F5" 
-                BorderBrush="#DDDDDD" 
+                Background="#252525" 
+                BorderBrush="#333333" 
                 BorderThickness="0,1,0,0" 
                 Padding="20,10">
             <StackPanel Orientation="Horizontal" 

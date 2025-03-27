@@ -37,7 +37,7 @@ namespace ScreenOCR
             var border = new Border
             {
                 CornerRadius = new CornerRadius(8),
-                Background = new SolidColorBrush(Color.FromArgb(230, 51, 51, 51)),
+                Background = new SolidColorBrush(Color.FromArgb(100, 73, 217, 169)),
                 Padding = new Thickness(10)
             };
             
