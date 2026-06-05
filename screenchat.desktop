@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=ScreenChat
+Comment=Screen OCR utility for Fedora GNOME/Wayland
+Exec=screenchat %F
+Icon=screenchat
+Categories=Utility;
+Terminal=false

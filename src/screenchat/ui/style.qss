@@ -1,0 +1,75 @@
+/* style.qss - Industrial Design for ScreenChat */
+
+/* Platform (Backgrounds) */
+QMainWindow, QDialog, QWidget {
+    background-color: #121212;
+    color: #F0F0F0;
+    font-family: "Inter", "Roboto", sans-serif;
+    font-size: 14px;
+}
+
+/* Input Fields */
+QTextEdit, QPlainTextEdit, QLineEdit {
+    background-color: #1E1E1E;
+    border: none;
+    border-bottom: 2px solid #333333;
+    color: #F0F0F0;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    padding: 8px;
+}
+
+QTextEdit:focus, QPlainTextEdit:focus, QLineEdit:focus {
+    border-bottom: 2px solid #FF6B00;
+}
+
+/* Buttons */
+QPushButton {
+    background-color: #1E1E1E;
+    border: 1px solid #333333;
+    color: #F0F0F0;
+    padding: 8px 16px;
+    border-radius: 0px; /* Sharp corners */
+    font-weight: bold;
+    /* text-transform is not fully supported in QSS, but we do it via code if needed */
+}
+
+QPushButton:hover {
+    background-color: #333333;
+    border-color: #8A8A8A;
+}
+
+/* Main Button (Action) */
+QPushButton#primaryAction {
+    background-color: #FF6B00;
+    color: #000000;
+    border: none;
+}
+
+QPushButton#primaryAction:hover {
+    background-color: #FF8A33;
+}
+
+/* Other components */
+QFrame#Divider {
+    background-color: #333333;
+    max-height: 1px;
+}
+
+QComboBox {
+    background-color: #1E1E1E;
+    border: 1px solid #333333;
+    color: #F0F0F0;
+    padding: 4px 8px;
+    border-radius: 0px;
+}
+
+QComboBox::drop-down {
+    border-left: 1px solid #333333;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #1E1E1E;
+    border: 1px solid #333333;
+    selection-background-color: #FF6B00;
+    selection-color: #000000;
+}

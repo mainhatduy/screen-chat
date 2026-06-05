@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <style>
+      .thick { fill: none; stroke: #194876; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+      .thin { fill: none; stroke: #194876; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+      .solid { fill: #194876; }
+    </style>
+  </defs>
+
+  <line x1="38" y1="38" x2="62" y2="62" class="thin"/>
+  <line x1="38" y1="62" x2="62" y2="38" class="thin"/>
+  <rect x="38" y="38" width="24" height="24" class="thin"/>
+
+  <circle cx="38" cy="38" r="3" class="solid"/>
+  <circle cx="62" cy="38" r="3" class="solid"/>
+  <circle cx="62" cy="62" r="3" class="solid"/>
+  <circle cx="38" cy="62" r="3" class="solid"/>
+
+  <circle cx="50" cy="50" r="8" class="solid"/>
+  <path d="M 50 44 Q 50 50 44 50 Q 50 50 50 56 Q 50 50 56 50 Q 50 50 50 44 Z" fill="white"/>
+
+  <path d="M 32 42 L 32 32 L 42 32" class="thick"/> <path d="M 68 42 L 68 32 L 58 32" class="thick"/> <path d="M 68 58 L 68 68 L 58 68" class="thick"/> <path d="M 32 58 L 32 68 L 42 68" class="thick"/> <rect x="25" y="25" width="50" height="50" rx="3" class="thin"/>
+
+  <path d="M 23 15 L 15 15 L 15 23" class="thick"/>
+  <path d="M 77 85 L 85 85 L 85 77" class="thick"/>
+  <path d="M 15 50 L 15 82 Q 15 85 18 85 L 50 85" class="thick"/>
+  <path d="M 70 15 L 85 15 L 85 30" class="thin"/>
+</svg>

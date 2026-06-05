@@ -1,5 +1,44 @@
+# Python bytecode/cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging / build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# AppImage packaging artifacts & downloaded tool binaries
+AppDir/
+*.AppImage
+
+# Project-specific databases and secrets
+db/
+apikey.json
+.env
+
+# Logs
+logs/
+*.log
+
+# Legacy ScreenOCR (WPF Windows version) build artifacts
 ScreenOCR/db
 ScreenOCR/obj
 ScreenOCR/bin
-logs
-.gitignore
+
+# Legacy document rules (to preserve compatibility)
+document/*
+
+# IDE and Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
