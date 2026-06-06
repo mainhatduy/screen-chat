@@ -144,6 +144,10 @@ QPushButton {
     font-size: 13px;
 }
 
+QInputDialog QPushButton {
+    qproperty-icon: url("");
+}
+
 QPushButton:hover {
     background-color: #2D2D35;
     border-color: #4A4A55;

@@ -46,9 +46,17 @@ class SettingsUseCase:
     def get_settings(self) -> AppSettings:
         return self.config_repo.settings
 
-    def save_settings(self, api_key: str, enable_double_check: bool, selected_prompt_name: str) -> None:
+    def save_settings(
+        self, 
+        api_key: str, 
+        enable_double_check: bool, 
+        selected_prompt_name: str,
+        custom_prompts: list = None
+    ) -> None:
         settings = self.config_repo.settings
         settings.api_key = api_key
         settings.enable_double_check = enable_double_check
         settings.selected_prompt_name = selected_prompt_name
+        if custom_prompts is not None:
+            settings.custom_prompts = custom_prompts
         self.config_repo.save()
