@@ -2,7 +2,7 @@
 Type=Application
 Name=ScreenChat
 Comment=Screen OCR utility for Fedora GNOME/Wayland
-Exec=screenchat %F
+Exec=screenchat
 Icon=screenchat
 Categories=Utility;
 Terminal=false

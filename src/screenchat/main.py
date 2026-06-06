@@ -65,15 +65,16 @@ def run_capture():
 
 def main():
     parser = argparse.ArgumentParser(description="ScreenChat OCR for Fedora 44 Wayland")
-    parser.add_argument("command", choices=["start", "capture"], help="Command to execute")
+    parser.add_argument("command", nargs="?", choices=["start", "capture"], default="start", help="Command to execute")
     
-    if len(sys.argv) < 2:
-        parser.print_help()
-        sys.exit(1)
-        
-    cmd = sys.argv[1]
+    args = parser.parse_args()
+    cmd = args.command
     
-    logger.add("logs/screenchat.log", rotation="10 MB")
+    import os
+    log_dir = os.path.expanduser("~/.config/screenchat")
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "screenchat.log")
+    logger.add(log_file, rotation="10 MB")
     
     if cmd == "start":
         run_daemon()

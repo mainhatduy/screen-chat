@@ -1,13 +1,15 @@
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QCheckBox, QComboBox, QMessageBox, QListView, QStyledItemDelegate
 from PyQt6.QtCore import Qt
 from ..application.use_cases import SettingsUseCase
+from ..adapters.autostart import AutostartManager
 
 class SettingsWindow(QDialog):
     def __init__(self, settings_use_case: SettingsUseCase):
         super().__init__()
         self.settings_use_case = settings_use_case
+        self.autostart_manager = AutostartManager()
         self.setWindowTitle("ScreenChat - Settings")
-        self.setFixedSize(500, 330)
+        self.setFixedSize(500, 360)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint)
         
         self.init_ui()
@@ -51,6 +53,10 @@ class SettingsWindow(QDialog):
         self.double_check_cb = QCheckBox("Enable Double Check (Preview before copying)")
         layout.addWidget(self.double_check_cb)
 
+        # Autostart
+        self.autostart_cb = QCheckBox("Launch ScreenChat at system startup")
+        layout.addWidget(self.autostart_cb)
+
         # Spacer
         layout.addStretch()
 
@@ -77,6 +83,7 @@ class SettingsWindow(QDialog):
         idx = self.prompt_combo.findText(settings.selected_prompt_name)
         if idx >= 0:
             self.prompt_combo.setCurrentIndex(idx)
+        self.autostart_cb.setChecked(self.autostart_manager.is_enabled())
 
     def save_settings(self):
         api_key = self.api_input.text().strip()
@@ -89,4 +96,10 @@ class SettingsWindow(QDialog):
             enable_double_check=self.double_check_cb.isChecked(),
             selected_prompt_name=self.prompt_combo.currentText()
         )
+
+        try:
+            self.autostart_manager.set_enabled(self.autostart_cb.isChecked())
+        except Exception as e:
+            QMessageBox.warning(self, "Autostart Error", f"Could not update autostart setting:\n{e}")
+
         self.accept()

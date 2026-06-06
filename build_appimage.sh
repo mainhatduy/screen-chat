@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+# Define directories
+BUILD_DIR="build"
+DIST_DIR="${BUILD_DIR}/dist"
+APPDIR="${BUILD_DIR}/AppDir"
+WORK_DIR="${BUILD_DIR}/pyinstaller_work"
+LINUXDEPLOY="${BUILD_DIR}/linuxdeploy-x86_64.AppImage"
+SVG_ICON="${BUILD_DIR}/screenchat.svg"
+
 # 1. Activate the virtual environment
 echo "Activating virtual environment..."
 source .venv/bin/activate
@@ -11,44 +19,52 @@ uv pip install pyinstaller
 
 # 3. Clean up previous build directories if any
 echo "Cleaning up previous builds..."
-rm -rf build dist AppDir *.AppImage screenchat.svg
+# Clean up legacy root-level folders if they exist
+rm -rf dist AppDir screenchat.svg screenchat.spec
+# Clean up temporary build-related items (keep downloaded linuxdeploy if it exists)
+rm -rf "${WORK_DIR}" "${DIST_DIR}" "${APPDIR}" "${SVG_ICON}" "${BUILD_DIR}/screenchat.spec"
+
+# Ensure build directories exist
+mkdir -p "${BUILD_DIR}"
+mkdir -p "${APPDIR}/usr/bin"
 
 # 4. Run PyInstaller
-# We need to bundle src/screenchat/ui/style.qss and copy it to the correct path
 echo "Running PyInstaller..."
 pyinstaller --name=screenchat \
             --windowed \
-            --add-data "src/screenchat/ui/style.qss:screenchat/ui" \
-            --add-data "src/screenchat/resources/:screenchat/resources" \
+            --workpath "${WORK_DIR}" \
+            --distpath "${DIST_DIR}" \
+            --specpath "${BUILD_DIR}" \
+            --add-data "$(pwd)/src/screenchat/ui/style.qss:screenchat/ui" \
+            --add-data "$(pwd)/src/screenchat/resources/:screenchat/resources" \
             run_app.py
 
-# 5. Create AppDir structure
+# 5. Prepare AppDir structure
 echo "Preparing AppDir..."
-mkdir -p AppDir/usr/bin
-
 # Copy PyInstaller distribution contents to AppDir/usr/bin
-cp -r dist/screenchat/* AppDir/usr/bin/
+cp -r "${DIST_DIR}/screenchat/"* "${APPDIR}/usr/bin/"
 
-# 6. Download linuxdeploy
-echo "Downloading linuxdeploy..."
-curl -sLo linuxdeploy-x86_64.AppImage https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-chmod +x linuxdeploy-x86_64.AppImage
+# 6. Download linuxdeploy if not present
+if [ ! -f "${LINUXDEPLOY}" ]; then
+    echo "Downloading linuxdeploy..."
+    curl -sLo "${LINUXDEPLOY}" https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+    chmod +x "${LINUXDEPLOY}"
+fi
 
 # 7. Package as AppImage
 echo "Packaging AppImage..."
-# Disable type checks and update check to keep linuxdeploy running smoothly in the build environment
 export VERSION=1.0.0
 export ARCH=x86_64
 
-# Copy logo.svg to screenchat.svg so linuxdeploy matches Icon=screenchat in screenchat.desktop
-cp src/screenchat/resources/logo.svg screenchat.svg
+# Copy logo.svg to the build directory so linuxdeploy matches Icon=screenchat in screenchat.desktop
+cp src/screenchat/resources/logo.svg "${SVG_ICON}"
 
 # Run linuxdeploy to generate the AppImage
-./linuxdeploy-x86_64.AppImage \
-    --appdir AppDir \
-    --executable AppDir/usr/bin/screenchat \
+"${LINUXDEPLOY}" \
+    --appdir "${APPDIR}" \
+    --executable "${APPDIR}/usr/bin/screenchat" \
     --desktop-file screenchat.desktop \
-    --icon-file screenchat.svg \
+    --icon-file "${SVG_ICON}" \
     --output appimage
 
 echo "AppImage packaging complete! Generated file is in the root directory."
