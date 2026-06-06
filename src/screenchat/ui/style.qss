@@ -251,3 +251,92 @@ QPushButton#ModernDialogCloseBtn:pressed {
     background-color: #C53030;
 }
 
+/* QTabWidget (Settings tabs) */
+QTabWidget::tab-bar {
+    left: 12px;
+}
+
+QTabWidget::pane {
+    border: 1.5px solid #2D2D35;
+    border-radius: 8px;
+    background-color: #1A1A1E;
+    position: absolute;
+    top: -1.5px;
+}
+
+QTabBar::tab {
+    background-color: #121214;
+    color: #A1A1AA;
+    border: 1.5px solid #2D2D35;
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    padding: 8px 16px;
+    margin-right: 4px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+QTabBar::tab:hover {
+    background-color: #1A1A1E;
+    color: #E4E4E7;
+    border-color: #4A4A55;
+    border-bottom: none;
+}
+
+QTabBar::tab:selected {
+    background-color: #1A1A1E;
+    color: #FF6B00;
+    border-color: #2D2D35;
+    border-bottom: 1.5px solid #1A1A1E; /* matches pane background */
+}
+
+/* QKeySequenceEdit */
+QKeySequenceEdit {
+    background-color: #1A1A1E;
+    border: 1.5px solid #2D2D35;
+    border-radius: 8px;
+    color: #FF6B00;
+    font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 14px;
+}
+
+QKeySequenceEdit:hover {
+    border-color: #4A4A55;
+}
+
+QKeySequenceEdit:focus {
+    border-color: #FF6B00;
+    background-color: #1F1F24;
+}
+
+/* QRadioButton */
+QRadioButton {
+    spacing: 10px;
+    color: #E4E4E7;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid #2D2D35;
+    border-radius: 9px; /* circular */
+    background-color: #1A1A1E;
+}
+
+QRadioButton::indicator:hover {
+    border-color: #FF6B00;
+    background-color: #1F1F24;
+}
+
+QRadioButton::indicator:checked {
+    background-color: #FF6B00;
+    border-color: #FF6B00;
+    image: url({{RESOURCES_DIR}}/check.svg);
+}
+
+

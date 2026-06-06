@@ -19,3 +19,5 @@ class AppSettings(BaseModel):
         )
     ]
     selected_prompt_name: str = "Default OCR"
+    shortcut: str = "Shift+Meta+T"
+

@@ -51,7 +51,8 @@ class SettingsUseCase:
         api_key: str, 
         enable_double_check: bool, 
         selected_prompt_name: str,
-        custom_prompts: list = None
+        custom_prompts: list = None,
+        shortcut: str = None
     ) -> None:
         settings = self.config_repo.settings
         settings.api_key = api_key
@@ -59,4 +60,7 @@ class SettingsUseCase:
         settings.selected_prompt_name = selected_prompt_name
         if custom_prompts is not None:
             settings.custom_prompts = custom_prompts
+        if shortcut is not None:
+            settings.shortcut = shortcut
         self.config_repo.save()
+
