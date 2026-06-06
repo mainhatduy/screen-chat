@@ -1,25 +1,20 @@
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QCheckBox, QComboBox, QMessageBox, QListView, QStyledItemDelegate
+from PyQt6.QtWidgets import QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QPushButton, QCheckBox, QComboBox, QMessageBox, QListView, QStyledItemDelegate
 from PyQt6.QtCore import Qt
 from ..application.use_cases import SettingsUseCase
 from ..adapters.autostart import AutostartManager
+from .base_dialog import ModernDialog
 
-class SettingsWindow(QDialog):
+class SettingsWindow(ModernDialog):
     def __init__(self, settings_use_case: SettingsUseCase):
-        super().__init__()
+        super().__init__(title="ScreenChat - Settings", stays_on_top=False)
         self.settings_use_case = settings_use_case
         self.autostart_manager = AutostartManager()
-        self.setWindowTitle("ScreenChat - Settings")
-        self.setFixedSize(500, 360)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint)
+        self.resize(500, 385)
         
         self.init_ui()
         self.load_settings()
 
     def init_ui(self):
-        layout = QVBoxLayout()
-        layout.setContentsMargins(24, 24, 24, 24)
-        layout.setSpacing(18)
-
         # API Key
         api_layout = QVBoxLayout()
         api_layout.setSpacing(6)
@@ -29,7 +24,7 @@ class SettingsWindow(QDialog):
         self.api_input.setPlaceholderText("Enter API Key here...")
         api_layout.addWidget(api_label)
         api_layout.addWidget(self.api_input)
-        layout.addLayout(api_layout)
+        self.content_layout.addLayout(api_layout)
 
         # Prompts
         prompt_layout = QVBoxLayout()
@@ -47,18 +42,18 @@ class SettingsWindow(QDialog):
             self.prompt_combo.addItem(p.name, p.text)
         prompt_layout.addWidget(prompt_label)
         prompt_layout.addWidget(self.prompt_combo)
-        layout.addLayout(prompt_layout)
+        self.content_layout.addLayout(prompt_layout)
 
         # Double Check
         self.double_check_cb = QCheckBox("Enable Double Check (Preview before copying)")
-        layout.addWidget(self.double_check_cb)
+        self.content_layout.addWidget(self.double_check_cb)
 
         # Autostart
         self.autostart_cb = QCheckBox("Launch ScreenChat at system startup")
-        layout.addWidget(self.autostart_cb)
+        self.content_layout.addWidget(self.autostart_cb)
 
         # Spacer
-        layout.addStretch()
+        self.content_layout.addStretch()
 
         # Buttons
         btn_layout = QHBoxLayout()
@@ -73,8 +68,8 @@ class SettingsWindow(QDialog):
         btn_layout.addWidget(self.cancel_btn)
         btn_layout.addWidget(self.save_btn)
         
-        layout.addLayout(btn_layout)
-        self.setLayout(layout)
+        self.content_layout.addLayout(btn_layout)
+
 
     def load_settings(self):
         settings = self.settings_use_case.get_settings()

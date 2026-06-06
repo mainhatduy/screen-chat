@@ -206,3 +206,44 @@ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     background: none;
 }
+
+/* Custom Modern Dialog (Frameless with Rounded Corners) */
+QFrame#ModernDialogOuterFrame {
+    background-color: #121214;
+    border: 1.5px solid #2D2D35;
+    border-radius: 12px;
+}
+
+QWidget#ModernDialogTitleBar {
+    background-color: #1A1A1E;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom: 1.5px solid #2D2D35;
+}
+
+QLabel#ModernDialogTitle {
+    color: #E4E4E7;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: none; /* override global uppercase */
+}
+
+QPushButton#ModernDialogCloseBtn {
+    background-color: #2D2D35;
+    color: #E4E4E7;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 0px 0px 2px 0px;
+}
+
+QPushButton#ModernDialogCloseBtn:hover {
+    background-color: #E53E3E;
+    color: #FFFFFF;
+}
+
+QPushButton#ModernDialogCloseBtn:pressed {
+    background-color: #C53030;
+}
+

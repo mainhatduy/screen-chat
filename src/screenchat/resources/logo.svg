@@ -1,31 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0F111A" />
-      <stop offset="50%" stop-color="#141824" />
-      <stop offset="100%" stop-color="#1E1B4B" />
+    <linearGradient id="aiSparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8324" />
+      <stop offset="50%" stop-color="#FF6B00" />
+      <stop offset="100%" stop-color="#E05E00" />
     </linearGradient>
-
-    <linearGradient id="aiGrad" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#FF5ACD" />
-      <stop offset="50%" stop-color="#8E56FF" />
-      <stop offset="100%" stop-color="#21D4FD" />
-    </linearGradient>
-
-    <linearGradient id="cornerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" />
-      <stop offset="100%" stop-color="#94A3B8" />
+    
+    <linearGradient id="darkBgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1A1A1E" />
+      <stop offset="100%" stop-color="#121214" />
     </linearGradient>
   </defs>
 
-  <rect width="512" height="512" rx="112" fill="url(#bgGradient)" />
+  <rect width="512" height="512" rx="112" fill="url(#darkBgGradient)" />
+  
+  <rect x="1" y="1" width="510" height="510" rx="111" fill="none" stroke="#1F1F24" stroke-width="3" opacity="0.6" />
 
-  <g fill="none" stroke="url(#cornerGrad)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M 130 195 L 130 130 L 195 130" />
-    <path d="M 317 130 L 382 130 L 382 195" />
-    <path d="M 130 317 L 130 382 L 195 382" />
-    <path d="M 317 382 L 382 382 L 382 317" />
+  <g stroke="#FFFFFF" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.95">
+    <path d="M 165 95 L 95 95 L 95 165" />
+    <path d="M 347 95 L 417 95 L 417 165" />
+    <path d="M 95 347 L 95 417 L 165 417" />
+    <path d="M 417 347 L 417 417 L 347 417" />
   </g>
 
-  <path d="M 256 160 Q 256 256 352 256 Q 256 256 256 352 Q 256 256 160 256 Q 256 256 256 160 Z" fill="url(#aiGrad)" />
+  <path d="M 256 160 Q 256 256 352 256 Q 256 256 256 352 Q 256 256 160 256 Q 256 256 256 160 Z" 
+        fill="url(#aiSparkleGradient)" />
 </svg>
