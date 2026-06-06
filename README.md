@@ -113,18 +113,25 @@ screen-chat/
 ├── src/
 │   └── screenchat/
 │       ├── __init__.py
-│       ├── main.py        # CLI Entry point (start, capture)
-│       ├── core/
-│       │   ├── config.py  # settings.json config file management
-│       │   ├── gemini.py  # Gemini API integration (google-genai)
-│       │   ├── ipc.py     # Inter-process communication socket
-│       │   └── wayland.py # Screenshot capture via XDG Desktop Portal (DBus)
+│       ├── main.py        # CLI Entry point (Composition Root)
+│       ├── domain/
+│       │   ├── models.py  # Domain models (AppSettings, CustomPrompt)
+│       │   └── interfaces.py # Domain interfaces (Ports)
+│       ├── application/
+│       │   └── use_cases.py # Business rules & orchestration
+│       ├── adapters/
+│       │   ├── json_config.py # ConfigRepository implementation
+│       │   ├── gemini_ocr.py # OCRService implementation
+│       │   ├── wayland_screenshot.py # ScreenshotService implementation
+│       │   ├── pyperclip_clipboard.py # ClipboardService implementation
+│       │   └── ipc_server.py # IPC socket communications
 │       └── ui/
-│           ├── settings.py# API Key & Prompts settings interface
-│           ├── review.py  # OCR results preview and edit dialog
+│           ├── controller.py # Central application controller/coordinator
+│           ├── settings.py # Settings UI window
+│           ├── review.py  # OCR results preview dialog
 │           ├── toast.py   # Slide-in screen notification (Toast)
-│           ├── tray.py    # System Tray icon controller
-│           └── style.qss  # Industrial Design style sheet (CSS)
+│           ├── tray.py    # System Tray icon View
+│           └── style.qss  # Industrial Design QSS stylesheet
 ```
 
 ---

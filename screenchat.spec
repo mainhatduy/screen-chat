@@ -5,7 +5,7 @@ a = Analysis(
     ['run_app.py'],
     pathex=[],
     binaries=[],
-    datas=[('src/screenchat/ui/style.qss', 'screenchat/ui')],
+    datas=[('src/screenchat/ui/style.qss', 'screenchat/ui'), ('src/screenchat/resources/', 'screenchat/resources')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

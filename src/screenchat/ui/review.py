@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QTextEdit, QPushButton
 from PyQt6.QtCore import Qt
-import pyperclip
 
 class ReviewWindow(QDialog):
     def __init__(self, text_content: str):
@@ -15,15 +14,18 @@ class ReviewWindow(QDialog):
 
     def init_ui(self):
         layout = QVBoxLayout()
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(16)
         
         self.text_editor = QTextEdit()
         self.text_editor.setPlainText(self.text_content)
         layout.addWidget(self.text_editor)
 
         btn_layout = QHBoxLayout()
+        btn_layout.setSpacing(12)
         self.copy_btn = QPushButton("COPY TO CLIPBOARD")
         self.copy_btn.setObjectName("primaryAction")
-        self.copy_btn.clicked.connect(self.copy_and_close)
+        self.copy_btn.clicked.connect(self.accept)
 
         self.close_btn = QPushButton("DISCARD")
         self.close_btn.clicked.connect(self.reject)
@@ -35,7 +37,5 @@ class ReviewWindow(QDialog):
         layout.addLayout(btn_layout)
         self.setLayout(layout)
 
-    def copy_and_close(self):
-        edited_text = self.text_editor.toPlainText()
-        pyperclip.copy(edited_text)
-        self.accept()
+    def get_text(self) -> str:
+        return self.text_editor.toPlainText()

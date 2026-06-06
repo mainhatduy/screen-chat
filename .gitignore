@@ -42,3 +42,6 @@ document/*
 *.swp
 *.swo
 .DS_Store
+
+# all folder start with .
+.*/

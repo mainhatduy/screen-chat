@@ -11,7 +11,7 @@ uv pip install pyinstaller
 
 # 3. Clean up previous build directories if any
 echo "Cleaning up previous builds..."
-rm -rf build dist AppDir *.AppImage
+rm -rf build dist AppDir *.AppImage screenchat.svg
 
 # 4. Run PyInstaller
 # We need to bundle src/screenchat/ui/style.qss and copy it to the correct path
@@ -19,6 +19,7 @@ echo "Running PyInstaller..."
 pyinstaller --name=screenchat \
             --windowed \
             --add-data "src/screenchat/ui/style.qss:screenchat/ui" \
+            --add-data "src/screenchat/resources/:screenchat/resources" \
             run_app.py
 
 # 5. Create AppDir structure
@@ -39,12 +40,15 @@ echo "Packaging AppImage..."
 export VERSION=1.0.0
 export ARCH=x86_64
 
+# Copy logo.svg to screenchat.svg so linuxdeploy matches Icon=screenchat in screenchat.desktop
+cp src/screenchat/resources/logo.svg screenchat.svg
+
 # Run linuxdeploy to generate the AppImage
 ./linuxdeploy-x86_64.AppImage \
     --appdir AppDir \
     --executable AppDir/usr/bin/screenchat \
     --desktop-file screenchat.desktop \
-    --icon-file screenchat.png \
+    --icon-file screenchat.svg \
     --output appimage
 
 echo "AppImage packaging complete! Generated file is in the root directory."

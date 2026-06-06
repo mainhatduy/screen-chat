@@ -11,8 +11,13 @@ class TrayController(QObject):
         super().__init__(parent)
         self.tray_icon = QSystemTrayIcon(parent)
         
-        # Use default system icon for camera
-        icon = QIcon.fromTheme("camera-photo")
+        import os
+        # Load logo.svg as the tray icon
+        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "resources", "logo.svg"))
+        if os.path.exists(logo_path):
+            icon = QIcon(logo_path)
+        else:
+            icon = QIcon.fromTheme("camera-photo")
         self.tray_icon.setIcon(icon)
         
         self.menu = QMenu()

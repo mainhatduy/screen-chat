@@ -1,13 +1,13 @@
-from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QCheckBox, QComboBox, QMessageBox
+from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QCheckBox, QComboBox, QMessageBox, QListView, QStyledItemDelegate
 from PyQt6.QtCore import Qt
-from ..core.config import ConfigManager
+from ..application.use_cases import SettingsUseCase
 
 class SettingsWindow(QDialog):
-    def __init__(self, config_manager: ConfigManager):
+    def __init__(self, settings_use_case: SettingsUseCase):
         super().__init__()
-        self.config_manager = config_manager
+        self.settings_use_case = settings_use_case
         self.setWindowTitle("ScreenChat - Settings")
-        self.setFixedSize(500, 300)
+        self.setFixedSize(500, 330)
         self.setWindowFlags(self.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint)
         
         self.init_ui()
@@ -15,12 +15,13 @@ class SettingsWindow(QDialog):
 
     def init_ui(self):
         layout = QVBoxLayout()
-        layout.setSpacing(15)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(18)
 
         # API Key
         api_layout = QVBoxLayout()
+        api_layout.setSpacing(6)
         api_label = QLabel("GEMINI API KEY:")
-        api_label.setStyleSheet("font-weight: bold; color: #8A8A8A;")
         self.api_input = QLineEdit()
         self.api_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.api_input.setPlaceholderText("Enter API Key here...")
@@ -30,10 +31,17 @@ class SettingsWindow(QDialog):
 
         # Prompts
         prompt_layout = QVBoxLayout()
+        prompt_layout.setSpacing(6)
         prompt_label = QLabel("SYSTEM PROMPT:")
-        prompt_label.setStyleSheet("font-weight: bold; color: #8A8A8A;")
         self.prompt_combo = QComboBox()
-        for p in self.config_manager.settings.custom_prompts:
+        list_view = QListView()
+        list_view.setSpacing(4)
+        self.prompt_combo.setView(list_view)
+        self.prompt_combo.setItemDelegate(QStyledItemDelegate(self.prompt_combo))
+        # Set stylesheet on the popup container widget to prevent native styling white lines
+        self.prompt_combo.view().parentWidget().setStyleSheet("background-color: #1A1A1E; border: none;")
+        settings = self.settings_use_case.get_settings()
+        for p in settings.custom_prompts:
             self.prompt_combo.addItem(p.name, p.text)
         prompt_layout.addWidget(prompt_label)
         prompt_layout.addWidget(self.prompt_combo)
@@ -63,9 +71,10 @@ class SettingsWindow(QDialog):
         self.setLayout(layout)
 
     def load_settings(self):
-        self.api_input.setText(self.config_manager.settings.api_key)
-        self.double_check_cb.setChecked(self.config_manager.settings.enable_double_check)
-        idx = self.prompt_combo.findText(self.config_manager.settings.selected_prompt_name)
+        settings = self.settings_use_case.get_settings()
+        self.api_input.setText(settings.api_key)
+        self.double_check_cb.setChecked(settings.enable_double_check)
+        idx = self.prompt_combo.findText(settings.selected_prompt_name)
         if idx >= 0:
             self.prompt_combo.setCurrentIndex(idx)
 
@@ -75,9 +84,9 @@ class SettingsWindow(QDialog):
             QMessageBox.warning(self, "Error", "API Key cannot be empty!")
             return
 
-        self.config_manager.settings.api_key = api_key
-        self.config_manager.settings.enable_double_check = self.double_check_cb.isChecked()
-        self.config_manager.settings.selected_prompt_name = self.prompt_combo.currentText()
-        
-        self.config_manager.save()
+        self.settings_use_case.save_settings(
+            api_key=api_key,
+            enable_double_check=self.double_check_cb.isChecked(),
+            selected_prompt_name=self.prompt_combo.currentText()
+        )
         self.accept()

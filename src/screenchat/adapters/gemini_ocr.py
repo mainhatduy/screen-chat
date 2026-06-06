@@ -1,24 +1,25 @@
-import os
+import json
+import mimetypes
 from google import genai
 from google.genai import types
 from loguru import logger
-import json
 
-class GeminiClient:
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-        # Initialize new client according to google-genai
-        self.client = genai.Client(api_key=self.api_key)
+from ..domain.interfaces import OCRService
+
+class GeminiOCRService(OCRService):
+    def __init__(self, api_key_provider):
+        """
+        Args:
+            api_key_provider: A callable that returns the current API key.
+        """
+        self.api_key_provider = api_key_provider
         self.model = "gemini-3.1-flash-lite"
 
     def extract_text(self, image_path: str, prompt: str) -> str:
-        """
-        Sends image and prompt to Gemini API to get OCR results.
-        """
+        api_key = self.api_key_provider()
         logger.info(f"Sending request to Gemini API for image: {image_path} using model {self.model}")
         
         try:
-            import mimetypes
             mime_type, _ = mimetypes.guess_type(image_path)
             if not mime_type:
                 mime_type = "image/png"
@@ -26,7 +27,8 @@ class GeminiClient:
             with open(image_path, "rb") as f:
                 img_bytes = f.read()
             
-            # Initialize contents
+            # Initialize client and contents
+            client = genai.Client(api_key=api_key)
             contents = [
                 types.Content(
                     role="user",
@@ -58,7 +60,7 @@ class GeminiClient:
                 ),
             )
             
-            response = self.client.models.generate_content(
+            response = client.models.generate_content(
                 model=self.model,
                 contents=contents,
                 config=generate_content_config,
@@ -71,4 +73,3 @@ class GeminiClient:
         except Exception as e:
             logger.error(f"Error calling Gemini API: {e}")
             return f"API Error: {e}"
-
