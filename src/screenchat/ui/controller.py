@@ -36,10 +36,8 @@ class ScreenChatApp(QObject):
         self.tray.quit_signal.connect(self.quit_app)
         self.tray.show()
 
-        # If API Key is not set, open settings window
-        settings = self.settings_use_case.get_settings()
-        if not settings.api_key:
-            self.open_settings()
+        # Open settings window on startup to notify user that the application is running
+        self.open_settings()
 
         # Connect IPC Server capture requested signal
         self.ipc_thread.capture_requested.connect(self.handle_capture_request)
